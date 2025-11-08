@@ -1,0 +1,173 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required permissions -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    
+    <!-- Fitness and location permissions -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="android.permission.BODY_SENSORS"/>
+    
+    <!-- Notification permissions -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    
+    <!-- Storage permissions -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    
+    <!-- Health Connect permissions (Android 14+) -->
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_DISTANCE"/>
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+    
+    <!-- A55 and Android 15 compatibility features -->
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.faketouch" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.step_counter" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.step_detector" android:required="false" />
+    
+    <!-- Memory and performance optimizations for mid-range devices -->
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:resizeable="true"
+        android:anyDensity="true" />
+
+    <application
+            android:label="FitMotion"
+            android:name="${applicationName}"
+            android:icon="@mipmap/ic_launcher"
+            android:enableOnBackInvokedCallback="true"
+            android:allowBackup="false"
+            android:requestLegacyExternalStorage="false"
+            android:usesCleartextTraffic="true"
+            android:largeHeap="true"
+            android:hardwareAccelerated="true"
+            android:vmSafeMode="true">
+        
+        <activity
+                android:name=".MainActivity"
+                android:exported="true"
+                android:launchMode="singleTop"
+                android:taskAffinity=""
+                android:theme="@style/LaunchTheme"
+                android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+                android:hardwareAccelerated="true"
+                android:windowSoftInputMode="adjustResize"
+                android:screenOrientation="portrait"
+                android:resizeableActivity="false"
+                android:supportsPictureInPicture="false">
+            
+            <!-- Launch theme for immediate visual feedback -->
+            <meta-data
+                    android:name="io.flutter.embedding.android.NormalTheme"
+                    android:resource="@style/NormalTheme"
+            />
+            
+            <!-- Splash screen configuration for A55 compatibility -->
+            <meta-data
+                android:name="io.flutter.embedding.android.SplashScreenDrawable"
+                android:resource="@drawable/launch_background" />
+            
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            
+            <!-- Handle app links and deep links -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Foreground service for workout tracking -->
+        <service android:name="com.fitmotion.app.WorkoutTrackingService"
+                 android:foregroundServiceType="location"
+                 android:enabled="true"
+                 android:exported="false" />
+        
+        <!-- Flutter embedding configuration -->
+        <meta-data
+                android:name="flutterEmbedding"
+                android:value="2"/>
+                
+        <!-- Android 15 and A55 specific configurations -->
+        <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".MainActivity" />
+                
+        <!-- Performance and memory optimizations -->
+        <meta-data
+                android:name="android.app.uses_non_sdk_api"
+                android:value="false" />
+                
+        <!-- Compatibility mode for older Android features -->
+        <meta-data
+                android:name="android.webkit.WebView.UseCompatibilityMode"
+                android:value="true" />
+                
+        <!-- Health Connect integration -->
+        <meta-data
+                android:name="health_connect_client"
+                android:value="true" />
+    </application>
+    
+    <!-- Enhanced query intents for Android 15 and A55 compatibility -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="http"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="*/*"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
+        <!-- Health Connect queries -->
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
+    
+    <!-- Device compatibility declarations -->
+    <compatible-screens>
+        <!-- Support all screen sizes for A55 compatibility -->
+        <screen android:screenSize="small" android:screenDensity="ldpi" />
+        <screen android:screenSize="small" android:screenDensity="mdpi" />
+        <screen android:screenSize="small" android:screenDensity="hdpi" />
+        <screen android:screenSize="small" android:screenDensity="xhdpi" />
+        <screen android:screenSize="normal" android:screenDensity="ldpi" />
+        <screen android:screenSize="normal" android:screenDensity="mdpi" />
+        <screen android:screenSize="normal" android:screenDensity="hdpi" />
+        <screen android:screenSize="normal" android:screenDensity="xhdpi" />
+        <screen android:screenSize="large" android:screenDensity="ldpi" />
+        <screen android:screenSize="large" android:screenDensity="mdpi" />
+        <screen android:screenSize="large" android:screenDensity="hdpi" />
+        <screen android:screenSize="large" android:screenDensity="xhdpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="ldpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="mdpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="hdpi" />
+        <screen android:screenSize="xlarge" android:screenDensity="xhdpi" />
+    </compatible-screens>
+</manifest>
