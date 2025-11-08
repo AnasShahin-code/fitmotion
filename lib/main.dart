@@ -21,6 +21,8 @@ Future<void> main() async {
 
   // ✅ تهيئة Firebase
   try {
+
+    
     debugPrint('🔥 Firebase initialized successfully');
   } catch (e) {
     debugPrint('❌ Firebase init failed: $e');
