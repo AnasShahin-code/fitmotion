@@ -75,38 +75,39 @@ class SupabaseService {
 
   // Generic select with filters, order, limit
   Future<List<dynamic>> selectRows(
-  String table, {
-  String columns = '*',
-  Map<String, dynamic>? filters,
-  String? orderBy,
-  bool ascending = true,
-  int? limit,
-}) async {
-  try {
-    PostgrestFilterBuilder query = client.from(table).select(columns);
+    String table, {
+    String columns = '*',
+    Map<String, dynamic>? filters,
+    String? orderBy,
+    bool ascending = true,
+    int? limit,
+  }) async {
+    try {
+      PostgrestFilterBuilder query = client.from(table).select(columns);
 
-    if (filters != null && filters.isNotEmpty) {
-      filters.forEach((column, value) {
-        query = query.eq(column, value);
-      });
+      if (filters != null && filters.isNotEmpty) {
+        filters.forEach((column, value) {
+          query = query.eq(column, value);
+        });
+      }
+
+      PostgrestTransformBuilder transformedQuery = query;
+
+      if (orderBy != null) {
+        transformedQuery =
+            transformedQuery.order(orderBy, ascending: ascending);
+      }
+
+      if (limit != null) {
+        transformedQuery = transformedQuery.limit(limit);
+      }
+
+      final response = await transformedQuery;
+      return response;
+    } catch (error) {
+      throw Exception('Select failed for table $table: $error');
     }
-
-    PostgrestTransformBuilder transformedQuery = query;
-
-    if (orderBy != null) {
-      transformedQuery = transformedQuery.order(orderBy, ascending: ascending);
-    }
-
-    if (limit != null) {
-      transformedQuery = transformedQuery.limit(limit);
-    }
-
-    final response = await transformedQuery;
-    return response;
-  } catch (error) {
-    throw Exception('Select failed for table $table: $error');
   }
-}
 
   // Generic update
   Future<List<dynamic>> updateRow(
@@ -142,20 +143,22 @@ class SupabaseService {
   // Realtime subscription helper
   RealtimeChannel subscribeToTable(
     String table, {
-    String event = '*',
-    required void Function(Map<String, dynamic>, [String?]) callback,
+    PostgresChangeEvent event =
+        PostgresChangeEvent.all, // or .insert, .update, .delete
+    required void Function(Map<String, dynamic> payload) callback,
   }) {
-    final channel = client.channel('public:$table')
-  .on(
-    RealtimeListenTypes.postgresChanges,
-    ChannelFilter(event: event, schema: 'public', table: table),
-    (payload, [ref]) => callback(payload, ref),
-  );
+    final channel = client.channel('public:$table');
 
-channel.subscribe();
+    channel
+        .onPostgresChanges(
+          event: event,
+          schema: 'public',
+          table: table,
+          callback: (payload) => callback(payload.newRecord ?? {}),
+        )
+        .subscribe();
 
-return channel;
-
+    return channel;
   }
 
   // Unsubscribe helper
@@ -163,4 +166,3 @@ return channel;
     await client.removeChannel(channel);
   }
 }
-  

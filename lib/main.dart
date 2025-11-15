@@ -21,8 +21,6 @@ Future<void> main() async {
 
   // ✅ تهيئة Firebase
   try {
-
-    
     debugPrint('🔥 Firebase initialized successfully');
   } catch (e) {
     debugPrint('❌ Firebase init failed: $e');
@@ -31,11 +29,7 @@ Future<void> main() async {
   // 🔒 قفل الاتجاه على الوضع العمودي فقط
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-
-final client = Supabase.instance.client;
-debugPrint('Supabase URL: ${client.supabaseUrl}');
-debugPrint('Supabase Key: ${client.supabaseKey}');
-
+  final client = Supabase.instance.client;
 
   final user = Supabase.instance.client.auth.currentUser;
   if (user != null) {
@@ -104,5 +98,4 @@ class _MyAppState extends State<MyApp> {
       },
     );
   }
-  
 }

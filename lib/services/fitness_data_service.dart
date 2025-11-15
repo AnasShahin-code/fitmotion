@@ -489,15 +489,22 @@ class FitnessDataService {
       final currentUser = _supabase.client.auth.currentUser;
       if (currentUser == null) return;
 
-      _supabase.client.channel('public:workout_sessions').on(
-        RealtimeListenTypes.postgresChanges,
-        ChannelFilter(event: '*', schema: 'public', table: 'workout_sessions'),
-        (payload, [ref]) {
-          if (payload['new']['user_id'] == currentUser.id) {
-            onData(payload['new']);
-          }
-        },
-      ).subscribe();
+      final channel = _supabase.client.channel('public:workout_sessions');
+
+      channel
+          .onPostgresChanges(
+            event: PostgresChangeEvent
+                .all, // or .insert/.update/.delete for specific events
+            schema: 'public',
+            table: 'workout_sessions',
+            callback: (payload) {
+              // payload.newRecord is where new row data comes
+              if ((payload.newRecord['user_id'] ?? '') == currentUser.id) {
+                onData(payload.newRecord);
+              }
+            },
+          )
+          .subscribe();
     } catch (error) {
       debugPrint('Subscribe to workout sessions error: $error');
     }
@@ -509,15 +516,19 @@ class FitnessDataService {
       final currentUser = _supabase.client.auth.currentUser;
       if (currentUser == null) return;
 
-      _supabase.client.channel('public:fitness_goals').on(
-        RealtimeListenTypes.postgresChanges,
-        ChannelFilter(event: '*', schema: 'public', table: 'fitness_goals'),
-        (payload, [ref]) {
-          if (payload['new']['user_id'] == currentUser.id) {
-            onData(payload['new']);
-          }
-        },
-      ).subscribe();
+      final channel = _supabase.client.channel('public:fitness_goals');
+      channel
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'fitness_goals',
+            callback: (payload) {
+              if ((payload.newRecord['user_id'] ?? '') == currentUser.id) {
+                onData(payload.newRecord);
+              }
+            },
+          )
+          .subscribe();
     } catch (error) {
       debugPrint('Subscribe to fitness goals error: $error');
     }

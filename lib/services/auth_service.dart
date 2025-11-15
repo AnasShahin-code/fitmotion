@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/supabase_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
   static AuthService? _instance;
@@ -256,7 +256,7 @@ class AuthService {
     try {
       if (kIsWeb) {
         final response = await _client.auth.signInWithOAuth(
-          Provider.google,
+          OAuthProvider.google,
           redirectTo:
               'https://pnydbwibckublrajloxo.supabase.co/auth/v1/callback',
           authScreenLaunchMode: LaunchMode.platformDefault,
@@ -269,7 +269,7 @@ class AuthService {
         return response;
       } else {
         final response = await _client.auth.signInWithOAuth(
-          Provider.google,
+          OAuthProvider.google,
           redirectTo: 'io.supabase.flutter://login-callback/',
           authScreenLaunchMode: LaunchMode.externalApplication,
         );
@@ -299,7 +299,7 @@ class AuthService {
   // Sign in with Apple OAuth
   Future<bool> signInWithApple() async {
     try {
-      final response = await _client.auth.signInWithOAuth(Provider.apple);
+      final response = await _client.auth.signInWithOAuth(OAuthProvider.apple);
 
       if (response && currentUser?.email != null) {
         await _saveUserEmail(currentUser!.email!);
